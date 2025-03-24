@@ -562,8 +562,8 @@ local mainWinFrame = imgui.OnFrame(
         imgui.SetNextWindowPos(imgui.ImVec2(sw / 2, sh / 2), imgui.Cond.FirstUseEver, imgui.ImVec2(0.5, 0.5))
         imgui.Begin(u8'« AutoRep » Автор bogfix [Special for 18]', mainWin, imgui.WindowFlags.NoResize + imgui.WindowFlags.NoCollapse + imgui.WindowFlags.AlwaysUseWindowPadding)
         
-        if imgui.Link(faicons.BUG.. u8"Нашёл баг или хочешь предложить идею? Напиши разработчику!", u8'Нажми на ссылку и тебе откроет страничку ВК') then
-            os.execute(('explorer.exe "%s"'):format("https://vk.com/bogf1x"))
+        if imgui.Link(faicons.BUG.. u8"Нашёл баг или хочешь предложить идею? Напиши разработчику!", u8'Нажми на ссылку и тебе откроет ТГ') then
+            os.execute(('explorer.exe "%s"'):format("https://t.me/bogfix"))
         end
         
         imgui.Text(faicons.KEYBOARD ..u8' Активация скрипта:')

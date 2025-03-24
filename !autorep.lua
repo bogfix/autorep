@@ -1,7 +1,7 @@
 script_author('White_Gasparov (bogfix)')
 script_name("AutoRep")
 script_properties('work-in-pause')
-script_version('2.0')
+script_version('2.1')
 -- Базовые зависимости
 require "moonloader"
 local inicfg = require 'inicfg'
@@ -469,6 +469,7 @@ function main()
     end
 end
 
+-- Обновим обработчик событий
 addEventHandler('onWindowMessage', function(msg, key, lparam)
     local isKeyDown = msg == 0x100 or msg == 260
     local isKeyUp = msg == 0x101 or msg == 261
@@ -513,7 +514,6 @@ addEventHandler('onWindowMessage', function(msg, key, lparam)
                 break
             end
         end
-        -- Сбрасываем triggered только для хоткеев, содержащих эту клавишу
         for name, hotkey in pairs(HotkeyManager.Hotkeys) do
             if tableContains(hotkey.keys, key) then
                 hotkey.triggered = false
@@ -534,11 +534,21 @@ addEventHandler('onWindowMessage', function(msg, key, lparam)
         end
     end
 
+    -- Обрабатываем сворачивание окна (WM_ACTIVATE, msg == 0x0006)
     if msg == 0x0006 then
-        local isMinimized = lparam == 0
-        if isMinimized and currentSound and isPlaying then
-            setAudioStreamState(currentSound, ev.STOP)
-            isPlaying = false
+        local isMinimized = lparam == 0 -- Окно свернуто
+        if isMinimized then
+            -- Сбрасываем ActiveKeys при сворачивании
+            HotkeyManager.ActiveKeys = {}
+            -- Сбрасываем triggered для всех хоткеев
+            for name, hotkey in pairs(HotkeyManager.Hotkeys) do
+                hotkey.triggered = false
+            end
+            -- Останавливаем звук, если он воспроизводится
+            if currentSound and isPlaying then
+                setAudioStreamState(currentSound, ev.STOP)
+                isPlaying = false
+            end
         end
     end
 

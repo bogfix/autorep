@@ -779,8 +779,8 @@ function sampev.onShowDialog(dialogId, style, title, button1, button2, text)
         end
     end
     
-    if dialog[0] and active and title:find('{') then 
-        sms("Активен диалог. Ловля отключена!")
+    if dialog[0] and active then 
+        err("Активен диалог. Ловля отключена!")
         active = false
         repWin[0] = false
     end

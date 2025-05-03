@@ -1,7 +1,7 @@
 script_author('White_Gasparov (bogfix)')
 script_name("AutoRep")
 script_properties('work-in-pause')
-script_version('2.3')
+script_version('2.4')
 -- Базовые зависимости
 require "moonloader"
 local inicfg = require 'inicfg'
@@ -854,6 +854,7 @@ function sampev.onServerMessage(clr, text)
             wait(0)
             sampSendChat('/ot')
         end)
+        return false
     end
     
     if text:find('Сейчас нет вопросов в репорт!') and repWin[0] then

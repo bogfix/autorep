@@ -1,7 +1,7 @@
 script_author('White_Gasparov (bogfix)')
 script_name("AutoRep")
 script_properties('work-in-pause')
-script_version('2.4')
+script_version('2.5')
 -- Базовые зависимости
 require "moonloader"
 local inicfg = require 'inicfg'
@@ -844,7 +844,7 @@ local repWinFrame = imgui.OnFrame(
 )
 -- SAMP события
 function sampev.onServerMessage(clr, text)
-    local type, rep, id, report, warning = text:match('%[(%W+)%] от (%w+_%w+)%[(%d+)%]:(.+) Уже (%d+) жалоб!!!')
+    local type, rep, id, report, warning = text:match('%[(%W+)%] от (.-)%[(%d+)]:(.+) Уже (%d+) жалоб!!!')
     local hex = intToHex(join_rgb(bgcolor[0] * 255, bgcolor[1] * 255, bgcolor[2] * 255))
     local hexColor = tonumber('0x' .. hex)
     

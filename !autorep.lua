@@ -1,7 +1,7 @@
 script_author('White_Gasparov (bogfix)')
 script_name("AutoRep")
 script_properties('work-in-pause')
-script_version('2.5')
+script_version('2.6')
 -- Базовые зависимости
 require "moonloader"
 local inicfg = require 'inicfg'
@@ -24,6 +24,7 @@ local cfg = inicfg.load({
         posx = sw / 2,
         posy = sh / 2,
         dialog = false,
+        recon = false,
         sound = nil,
         valuesound = 0.5,
         killafk = false,
@@ -380,8 +381,10 @@ local winmsg = imgui.new.bool(cfg.main.winmsg)
 local count = 0
 local startTime = nil
 local dialog = imgui.new.bool(cfg.main.dialog)
+local recon = imgui.new.bool(cfg.main.recon)
 local active = false
 local block = false
+local reconBool = false
 local reportInfo = imgui.new.bool(cfg.main.reportInfo)
 local showattempts = imgui.new.bool(cfg.main.showattempts)
 local showtime = imgui.new.bool(cfg.main.showtime)
@@ -455,7 +458,7 @@ function main()
     end
     -- Регистрация горячей клавиши
     bind = HotkeyManager:Register('bind', decodeJson(cfg.main.bind), function()
-        if not block and not isCursorActive() then
+        if not block and not isCursorActive() and not reconBool then
             active = not active
             if active then 
                 sampSendChat('/ot')
@@ -485,7 +488,7 @@ function main()
     sms('Автор - bogfix | Запущен | Активация: {E5261A}/autorep')
     sms('Активация ловли: {fa3737}'..showbutton(bind))
     if doesFileExist(cfg.main.sound) then
-        sms('Установлен звук: {f2e600}' .. cfg.main.sound, 'SUCCESS')
+        sms('Установлен звук: {f2e600}' .. cfg.main.sound)
     end
     if thisScript().version < lastver then
         sampRegisterChatCommand('autorep_upd', function()
@@ -497,7 +500,12 @@ function main()
     while true do
         wait(0)
         if isPauseMenuActive() and active and killesc[0] then
-            sms('Вы встали в АФК! Ловля отключена!', 'ERROR')
+            sms('Вы встали в АФК! Ловля отключена!', 'WARNING')
+            active = false
+            repWin[0] = false
+        end
+        if reconBool and recon[0] and active then
+            sms('Вы в реконе! Ловля отключена!', 'WARNING')
             active = false
             repWin[0] = false
         end
@@ -740,6 +748,7 @@ local mainWinFrame = imgui.OnFrame(
             imgui.Text(faicons.GEARS.. u8' Настройка отключений')
 
             checkbox(u8'Выключать при получении диалога', dialog, 'dialog')
+            checkbox(u8'Выключать в реконе', recon, 'recon')
             checkbox(u8'Выключать при сворачивании', killafk, 'killafk')
             checkbox(u8'Выключать при ESC', killesc, 'killesc')
 
@@ -844,13 +853,16 @@ local repWinFrame = imgui.OnFrame(
 )
 -- SAMP события
 function sampev.onServerMessage(clr, text)
-    local type, rep, id, report, warning = text:match('%[(%W+)%] от (.-)%[(%d+)]:(.+) Уже (%d+) жалоб!!!')
-    local hex = intToHex(join_rgb(bgcolor[0] * 255, bgcolor[1] * 255, bgcolor[2] * 255))
-    local hexColor = tonumber('0x' .. hex)
-    
-    if active and rep and report then
-        sampAddChatMessage('[Репорт] от '..rep..'['..id..']:{FFFFFF}'..report..' {E5261A}['..warning..']', hexColor)
-        lua_thread.create(function () -- Lua Thread потому что баг SAMPFUNCS, без него может крашить
+    text = select(1, text:gsub('{%x+}', ''))
+    local player, id, report, warning = text:match('%[%W+%] от (.-)%[(%d+)]:(.+) Уже (%d+) жалоб!!!')
+
+    if active and report then
+        local hex = intToHex(join_rgb(bgcolor[0] * 255, bgcolor[1] * 255, bgcolor[2] * 255))
+        local hexColor = tonumber('0x' .. hex)
+        
+        sampAddChatMessage('[Репорт] от '.. player ..'['.. id ..']:{FFFFFF}'.. report ..' {E5261A}['..warning..']', hexColor)
+        
+        lua_thread.create(function()
             wait(0)
             sampSendChat('/ot')
         end)
@@ -868,7 +880,10 @@ function sampev.onServerMessage(clr, text)
         sms('Скрипт посчитал что вы не администратор, если это не так введите /aunblock', 'WARNING')
     end
 end
-
+function sampev.onTogglePlayerSpectating(state)
+    if not recon[0] then return end
+    reconBool = state
+end
 function sampev.onShowDialog(dialogId, style, title, button1, button2, text)
     if dialogId == 1334 and active then
         active = false

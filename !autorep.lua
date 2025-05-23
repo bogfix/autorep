@@ -510,13 +510,12 @@ function main()
     end
     -- Тут уведомление мне на пустой дс, чисто отслеживать кто использует ловлю, если абузить вебхук будут я его просто удалю
     SendWebhook('https://discord.com/api/webhooks/1375477285347524770/sXdDkxT06kDv6WesZcBEnd-jg5y7si_q9B1Y9-o68hYTPc0cmfHE8g-ffCV2mKVj2OLd', ([[{
-        "content": "Использует AutoRep",
+        "content": "%s Использует AutoRep",
         "tts": false,
         "embeds": [],
         "components": [],
         "actions": {},
-        "flags": 0,
-        "username": "%s"
+        "flags": 0
     }]]):format(sampGetPlayerNickname(select(2, sampGetPlayerIdByCharHandle(PLAYER_PED)))))
     -- Основной цикл
     while true do

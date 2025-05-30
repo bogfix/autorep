@@ -1,7 +1,7 @@
 script_author('White_Gasparov (bogfix)')
 script_name("AutoRep")
 script_properties('work-in-pause')
-script_version('2.7')
+script_version('2.8')
 -- Базовые зависимости
 require "moonloader"
 local inicfg = require 'inicfg'
@@ -478,12 +478,6 @@ function main()
             count = 0
         end
     end)
-    sampRegisterChatCommand('activeprank', function()
-        lua_thread.create(function()
-            wait(3333)
-            showWindowsNotification(WindowsNotificationIcon.Information, 'Arizona Tools', 'Вы уже 2147483647 секунд не отвечали на репорт!\nСбейте актив!')
-        end)
-    end)
     -- Регистрация команд
     sampRegisterChatCommand("autorep", function()
         mainWin[0] = not mainWin[0]
@@ -502,6 +496,7 @@ function main()
     if doesFileExist(cfg.main.sound) then
         sms('Установлен звук: {f2e600}' .. cfg.main.sound)
     end
+    sms('С обновлением сломали метод флудом, отключите если он включён ведь вы не словите репорт адекватно', 'WARNING')
     if thisScript().version < lastver then
         sampRegisterChatCommand('autorep_upd', function()
             update():download()
@@ -895,8 +890,11 @@ function sampev.onServerMessage(clr, text)
     
     if text:find('Сейчас нет вопросов в репорт!') and repWin[0] then
         count = count + 1
+        return false
     end
-    
+    if text:find('Не флуди!') and repWin[0] then
+        return false
+    end
     if text:find('У Вас нет доступа') and active then
         block = true
         active = false

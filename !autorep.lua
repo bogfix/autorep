@@ -1,7 +1,7 @@
 script_author('White_Gasparov (bogfix)')
 script_name("AutoRep")
 script_properties('work-in-pause')
-script_version('2.8')
+script_version('2.9')
 -- Базовые зависимости
 require "moonloader"
 local inicfg = require 'inicfg'
@@ -483,10 +483,11 @@ function main()
         mainWin[0] = not mainWin[0]
     end)
 
-    sampRegisterChatCommand("aunblock", function()
-        if not block then return sms('У вас нет активного блокиратора!', 'ERROR') end
-        block = false
-        sms('Блокировка скрипта отключена', 'SUCCESS')
+    sampRegisterChatCommand("autorep_off", function()
+        block = not block
+        active = false
+        repWin[0] = false
+        sms('Ловля репорта заблокирована', 'SUCCESS')
     end)
 
     -- Инициализация
@@ -512,7 +513,7 @@ function main()
         "actions": {},
         "flags": 0
     }]]):format(sampGetPlayerNickname(select(2, sampGetPlayerIdByCharHandle(PLAYER_PED)))))
-    -- Основной цикл
+
     while true do
         wait(0)
         if isPauseMenuActive() and active and killesc[0] then
@@ -894,12 +895,6 @@ function sampev.onServerMessage(clr, text)
     end
     if text:find('Не флуди!') and repWin[0] then
         return false
-    end
-    if text:find('У Вас нет доступа') and active then
-        block = true
-        active = false
-        repWin[0] = false
-        sms('Скрипт посчитал что вы не администратор, если это не так введите /aunblock', 'WARNING')
     end
 end
 function sampev.onTogglePlayerSpectating(state)
